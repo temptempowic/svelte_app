@@ -1,10 +1,14 @@
 import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
 import * as schema from './schema';
-import { env } from '$env/dynamic/private';
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+// Create connection pool
+const connection = await mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  database: process.env.DB_NAME || 'auction_db',
+  password: process.env.DB_PASSWORD,
+  port: parseInt(process.env.DB_PORT || '3306')
+});
 
-const client = mysql.createPool(env.DATABASE_URL);
-
-export const db = drizzle(client, { schema, mode: 'default' });
+export const db = drizzle(connection, { schema, mode: 'default' });
